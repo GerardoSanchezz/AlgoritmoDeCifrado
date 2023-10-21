@@ -7,6 +7,7 @@ using namespace std;
 char** vigenereTable();
 void deleteTable(char**, int);
 void exportarTablaVigenere(char**);
+int Fibonacci(int);
 
 int main(){
     char** viegnere = vigenereTable();
@@ -14,6 +15,8 @@ int main(){
     exportarTablaVigenere(viegnere);
    
     deleteTable(viegnere, 26);
+
+    cout << "Fibonacci(8): " << Fibonacci(8) << endl;
 
     return 0;
 }
@@ -53,5 +56,13 @@ void exportarTablaVigenere(char** tabla) {
         cout << "Tabla de Vigenère generada y exportada exitosamente a tabla_vigenere.txt" << endl;
     } else {
         cerr << "No se pudo abrir el archivo para escritura." << endl;
+    }
+}
+
+int Fibonacci(int n) {
+    if (n < 2) {
+        return n;
+    } else {
+        return Fibonacci(n - 1) + Fibonacci(n - 2);
     }
 }
