@@ -4,14 +4,18 @@
 using namespace std;
 
 char** tablaVigenere();
-void deleteTablaVigenere(char** tabla);
-void exportarTablaVigenere(char** tabla);
+void deleteTablaVigenere(char**);
+void exportarTablaVigenere(char**);
+char interseccion(char**, char);
 
 int main(){
     char** viegnere = tablaVigenere();
     // Exportar la tabla al archivo de texto
     exportarTablaVigenere(viegnere);
 
+    char firstChar = interseccion(viegnere, 'B');
+
+    cout << "Interseccion de B: " << firstChar << endl;
     // Eliminar la tabla de memoria
     deleteTablaVigenere(viegnere);
 
@@ -41,7 +45,7 @@ char** tablaVigenere() {
 
 void exportarTablaVigenere(char** tabla) {
     // Exportar la tabla al archivo de texto
-    std::ofstream archivo("tabla_vigenere.txt");
+    ofstream archivo("tabla_vigenere.txt");
 
     if (archivo.is_open()) {
         for (int i = 0; i < 26; i++) {
@@ -51,8 +55,20 @@ void exportarTablaVigenere(char** tabla) {
             archivo << "\n"; // Nueva línea después de cada fila
         }
         archivo.close();
-        std::cout << "Tabla de Vigenère generada y exportada exitosamente a tabla_vigenere.txt" << std::endl;
+        cout << "Tabla de Vigenère generada y exportada exitosamente a tabla_vigenere.txt" << endl;
     } else {
-        std::cerr << "No se pudo abrir el archivo para escritura." << std::endl;
+        cerr << "No se pudo abrir el archivo para escritura." << endl;
     }
+}
+
+char interseccion(char** tabla, char a) {
+    int fila = 0;
+
+    for (int i = 0; i < 26; i++) {
+        if (tabla[i][0] == a) {
+            fila = i;
+            break;
+        }
+    }
+    return tabla[fila][fila];
 }
