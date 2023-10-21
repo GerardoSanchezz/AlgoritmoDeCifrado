@@ -16,8 +16,6 @@ int main(){
    
     deleteTable(viegnere, 26);
 
-    cout << "Fibonacci(8): " << Fibonacci(8) << endl;
-
     return 0;
 }
 
