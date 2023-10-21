@@ -10,6 +10,7 @@ void deleteTable(char**, int);
 void exportTable(char**, int);
 map<char, int> mixedAscii();
 int generateNewAsciiValue(char);
+int Fibonacci(int);
 
 int main(){
     char** viegnere = vigenereTable();
@@ -68,5 +69,13 @@ void exportTable(char** tabla, int size) {
         cout << "Tabla de Vigenère generada y exportada exitosamente a tabla_vigenere.txt" << endl;
     } else {
         cerr << "No se pudo abrir el archivo para escritura." << endl;
+    }
+}
+
+int Fibonacci(int n) {
+    if (n < 2) {
+        return n;
+    } else {
+        return Fibonacci(n - 1) + Fibonacci(n - 2);
     }
 }
