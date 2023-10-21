@@ -5,20 +5,18 @@
 
 using namespace std;
 
-char** vigenereTable(char*, int);
+char** vigenereTable();
 void deleteTable(char**, int);
-void exportTable(char**);
-map<char, int> mixedAscii(char*, int);
+void exportTable(char**, int);
+map<char, int> mixedAscii();
 int generateNewAsciiValue(char);
 
 int main(){
-    
-    char alphabet[26] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
-    char** viegnere = vigenereTable(alphabet, 26);
-    map<char, int> newAscii = mixedAscii(alphabet, 26);
-   
-    
-    deleteTable(viegnere, 26);
+    char** viegnere = vigenereTable();
+    map<char, int> newAscii = mixedAscii();
+
+    exportTable(viegnere, 94);
+    deleteTable(viegnere, 94);
 
     return 0;
 }
@@ -30,38 +28,38 @@ void deleteTable(char** table, int n) {
     delete[] table;
 }
 
-char** vigenereTable(char* alphabet, int size) {
-    char** table = new char*[size];
+char** vigenereTable() {
+    char** table = new char*[94];
 
-    for (int i = 0; i < size; i++) {
-        table[i] = new char[25];
-        for (int j = 0; j < 25; j++) {
-            table[i][j] = (alphabet[(i + j) % size]);
+    for (int i = 0; i < 94; i++) {
+        table[i] = new char[94];
+        for (int j = 0; j < 94; j++) {
+            table[i][j] = char(((i + j) % 94) + 32);
         }
     }
 
     return table;
 }
 
-map<char, int> mixedAscii(char* alphabet, int size) {
+map<char, int> mixedAscii() {
     map<char, int> newAscii;
-    for (int i = 0; i < size; i++) {
-        newAscii[alphabet[i]] = generateNewAsciiValue(alphabet[i]);
+    for (int i = 32; i < 126; i++) {
+        newAscii[char(i)] = generateNewAsciiValue(char(i));
     }
     return newAscii;
 }
 
 int generateNewAsciiValue(char character) {
     int offset = 3;
-    return (character + offset) % 127;
+    return (character + offset % 126);
 }
 
-void exportTable(char** tabla) {
+void exportTable(char** tabla, int size) {
     ofstream archivo("tabla_vigenere.txt");
 
     if (archivo.is_open()) {
-        for (int i = 0; i < 26; i++) {
-            for (int j = 0; j < 25; j++) {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
                 archivo << tabla[i][j] << " ";
             }
             archivo << "\n";
