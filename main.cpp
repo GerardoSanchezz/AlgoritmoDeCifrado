@@ -18,16 +18,16 @@ int main(){
     char** viegnere = vigenereTable();
     map<char, int> newAscii = mixedAscii();
 
-    string text = "This is a longer text that will be split into matrices of 4x4";
+    string text = "EJEMPLOOOO JIJI JAJA XD";
 
     int numRows;
     char*** result = textMatrix(text, numRows);
 
     // Imprimir todas las matrices resultantes
-    for (int i = 0; i < numRows; i++) {
-        for (int j = 0; j < 4; j++) {
-            for (int k = 0; k < 4; k++) {
-                cout << result[i][j][k] << " ";
+    for (int i = 0; i < numRows; i++) { // Imprimir todas las matrices resultantes
+        for (int j = 0; j < 4; j++) { // Imprimir cada fila de la matriz 
+            for (int k = 0; k < 4; k++) { // Imprimir cada columna de la matriz
+                cout << result[i][j][k] << " "; 
             }
             cout << endl;
         }
@@ -109,21 +109,21 @@ char*** textMatrix(string& text, int& numRows) {
     numRows = nMatrices * 4;  // 4 filas por matriz
     char*** matrices = new char**[nMatrices]; // Array de matrices
 
-    for (int i = 0; i < nMatrices; i++) {
-        matrices[i] = new char*[4];
-        for (int j = 0; j < 4; j++) {
+    for (int i = 0; i < nMatrices; i++) { // Se crea cada matriz
+        matrices[i] = new char*[4]; 
+        for (int j = 0; j < 4; j++) { 
             matrices[i][j] = new char[4];
         }
     }
 
     int index = 0;
-    for (int matrixIndex = 0; matrixIndex < nMatrices; matrixIndex++) {
-        for (int i = 0; i < 4; i++) {
+    for (int matrixIndex = 0; matrixIndex < nMatrices; matrixIndex++) { // Se llena cada matriz
+        for (int i = 0; i < 4; i++) { 
             for (int j = 0; j < 4; j++) {
-                if (index < n) {
-                    matrices[matrixIndex][i][j] = text[index++];
-                } else {
-                    matrices[matrixIndex][i][j] = ' ';
+                if (index < n) { 
+                    matrices[matrixIndex][i][j] = text[index++]; 
+                } else { // Si ya se acabó el texto, se llena con espacios
+                    matrices[matrixIndex][i][j] = ' '; 
                 }
             }
         }
