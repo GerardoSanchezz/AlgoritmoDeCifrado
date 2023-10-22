@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 #include <map>
+#include <vector>
 
 using namespace std;
 
@@ -11,12 +12,28 @@ void exportTable(char**, int);
 map<char, int> mixedAscii();
 int generateNewAsciiValue(char);
 int Fibonacci(int);
+char*** textMatrix(string&, int&);
 
 int main(){
     char** viegnere = vigenereTable();
     map<char, int> newAscii = mixedAscii();
 
-    cout << Fibonacci(8) << endl;
+    string text = "This is a longer text that will be split into matrices of 4x4";
+
+    int numRows;
+    char*** result = textMatrix(text, numRows);
+
+    // Imprimir todas las matrices resultantes
+    for (int i = 0; i < numRows; i++) {
+        for (int j = 0; j < 4; j++) {
+            for (int k = 0; k < 4; k++) {
+                cout << result[i][j][k] << " ";
+            }
+            cout << endl;
+        }
+        cout << endl;
+    }
+
 
     exportTable(viegnere, 94);
     deleteTable(viegnere, 94);
@@ -84,4 +101,33 @@ int Fibonacci(int n) {
     }
 
     return fib[n];
+}
+
+char*** textMatrix(string& text, int& numRows) {
+    int n = text.length();
+    int nMatrices = (n + 15) / 16;  //El +15 es pa redondear hacia arriba
+    numRows = nMatrices * 4;  // 4 filas por matriz
+    char*** matrices = new char**[nMatrices]; // Array de matrices
+
+    for (int i = 0; i < nMatrices; i++) {
+        matrices[i] = new char*[4];
+        for (int j = 0; j < 4; j++) {
+            matrices[i][j] = new char[4];
+        }
+    }
+
+    int index = 0;
+    for (int matrixIndex = 0; matrixIndex < nMatrices; matrixIndex++) {
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (index < n) {
+                    matrices[matrixIndex][i][j] = text[index++];
+                } else {
+                    matrices[matrixIndex][i][j] = ' ';
+                }
+            }
+        }
+    }
+
+    return matrices;
 }
