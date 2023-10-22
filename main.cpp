@@ -16,6 +16,8 @@ int main(){
     char** viegnere = vigenereTable();
     map<char, int> newAscii = mixedAscii();
 
+    cout << Fibonacci(8) << endl;
+
     exportTable(viegnere, 94);
     deleteTable(viegnere, 94);
 
@@ -73,9 +75,13 @@ void exportTable(char** tabla, int size) {
 }
 
 int Fibonacci(int n) {
-    if (n < 2) {
-        return n;
-    } else {
-        return Fibonacci(n - 1) + Fibonacci(n - 2);
+    int* fib = new int[n + 1];
+    fib[0] = 0;
+    fib[1] = 1;
+
+    for (int i = 2; i <= n; i++) {
+        fib[i] = fib[i - 1] + fib[i -2];
     }
+
+    return fib[n];
 }
