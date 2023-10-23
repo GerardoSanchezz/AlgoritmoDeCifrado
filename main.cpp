@@ -14,7 +14,11 @@ int newAsciiValue(char);
 int Fibonacci(int);
 char** stringToBlock(string);
 string encryptText(string, string);
-string changeBlockValues(char**, char**, int);
+string decryptText(string, string);
+string hideValues(char**, char**, int);
+string revealValues(char**, char**, int);
+char originalAsciiCharacter(int);
+char getTextCharacter(char, char);
 
 int FIRST_ASCII_VALUE = 32;
 int LAST_ASCII_VALUE = 126;
@@ -28,7 +32,11 @@ int main(){
     string key = "contrasenasegura";
     getline(cin, text);
 
-    cout << encryptText(text, key) << endl;
+    string chyper = encryptText(text, key);
+    string original = decryptText(chyper, key);
+
+    cout << chyper << endl;
+    cout << original << endl;
     
     exportTable(vigenere, NUMBER_OF_CHARACTERS);
     deleteTable(vigenere, NUMBER_OF_CHARACTERS);
@@ -57,7 +65,7 @@ char** vigenereTable() {
 
 map<char, int> mixedAscii() {
     map<char, int> newAscii;
-    for (int i = FIRST_ASCII_VALUE; i < LAST_ASCII_VALUE; i++) {
+    for (int i = FIRST_ASCII_VALUE; i <= LAST_ASCII_VALUE; i++) {
         newAscii[char(i)] = newAsciiValue(char(i));
     }
     return newAscii;
@@ -69,19 +77,38 @@ int newAsciiValue(char character) {
 }
 
 string encryptText(string text, string key) {
-    string cypherText;
-    string cypherKey;
+    string cypherText = text;
     int blockSize = 16;
-    int blockCounter = 1;
-    int index = 0;
-    while(index < text.length()) {
-        index = blockCounter * blockSize;
-        char** textBlock = stringToBlock(text.substr(index-blockSize, blockSize));
-        char** keyBlock = stringToBlock(key.substr(index-blockSize, blockSize));
-        cypherText += changeBlockValues(textBlock, keyBlock, sqrt(blockSize));
-        blockCounter++;
+    for(int i = 0; i < 5; i++) {
+        int blockCounter = 1;
+        int index = 0;
+        while(index < cypherText.length()) {
+            index = blockCounter * blockSize;
+            char** textBlock = stringToBlock(cypherText.substr(index-blockSize, blockSize));
+            char** keyBlock = stringToBlock(key.substr(index-blockSize, blockSize));
+            cypherText = hideValues(textBlock, keyBlock, sqrt(blockSize));
+            blockCounter++;
+        }
     }
     return cypherText;
+}
+
+string decryptText(string cypherText, string key) {
+    string text = cypherText;
+    int blockSize = 16;
+    
+    for(int i = 0; i < 5; i++) {
+        int blockCounter = 1;
+        int index = 0;
+        while(index < cypherText.length()) {
+            index = blockCounter * blockSize;
+            char** textBlock = stringToBlock(text.substr(index-blockSize, blockSize));
+            char** keyBlock = stringToBlock(key.substr(index-blockSize, blockSize));
+            text = revealValues(textBlock, keyBlock, sqrt(blockSize));
+            blockCounter++;
+        }
+    }
+    return text;
 }
 
 char** stringToBlock(string text) {
@@ -97,7 +124,7 @@ char** stringToBlock(string text) {
     return matrix;
 }
 
-string changeBlockValues(char** textBlock, char** keyBlock, int n) {
+string hideValues(char** textBlock, char** keyBlock, int n) {
     string newText;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
@@ -108,6 +135,37 @@ string changeBlockValues(char** textBlock, char** keyBlock, int n) {
         }
     }
     return newText;
+}
+
+string revealValues(char** textBlock, char** keyBlock, int n) {
+    string newText;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            int hiddenValue = int(textBlock[i][j]);
+            char hiddenCharacter = originalAsciiCharacter(hiddenValue);
+            newText += getTextCharacter(hiddenCharacter, keyBlock[i][j]);
+        }
+    }
+    return newText;
+}
+
+char originalAsciiCharacter(int value) {
+    for (const auto pair : newAscii) {
+        if (pair.second == value) {
+            return pair.first;
+        }
+    }
+    return ' ';
+}
+
+char getTextCharacter(char cypherCharacter, char keyCharacter) {
+    int keyValue = int(keyCharacter) - FIRST_ASCII_VALUE;
+    for (int i = 0; i < NUMBER_OF_CHARACTERS; i++) {
+        if (vigenere[i][keyValue] == cypherCharacter) {
+            return vigenere[i][0];
+        }
+    }
+    return ' ';
 }
 
 void exportTable(char** tabla, int size) {
