@@ -13,8 +13,8 @@ map<char, int> mixedAscii();
 int newAsciiValue(char);
 int Fibonacci(int);
 char** stringToBlock(string);
-string encryptText(string, string);
-string decryptText(string, string);
+string encrypt(string, string);
+string decrypt(string, string);
 string hideValues(char**, char**, int);
 string revealValues(char**, char**, int);
 char originalAsciiCharacter(int);
@@ -22,20 +22,25 @@ char getTextCharacter(char, char);
 
 int FIRST_ASCII_VALUE = 32;
 int LAST_ASCII_VALUE = 126;
-int NUMBER_OF_CHARACTERS = LAST_ASCII_VALUE - FIRST_ASCII_VALUE;
+int NUMBER_OF_CHARACTERS = LAST_ASCII_VALUE - FIRST_ASCII_VALUE + 1;
+int NUMBER_OF_ITERATIONS = 1;
 char** vigenere = vigenereTable();
 map<char, int> newAscii = mixedAscii();
 
 int main(){
-   
+
+    // for (auto c : newAscii) {
+    //     cout << c.first << " " << c.second << endl;
+    // }
+
     string text;
-    string key = "contrasenasegura";
+    string key = "contrasenaseguracontrasenasegura";
     getline(cin, text);
 
-    string chyper = encryptText(text, key);
-    string original = decryptText(chyper, key);
-
+    string chyper = encrypt(text, key);
     cout << chyper << endl;
+
+    string original = decrypt(chyper, key);
     cout << original << endl;
     
     exportTable(vigenere, NUMBER_OF_CHARACTERS);
@@ -73,39 +78,44 @@ map<char, int> mixedAscii() {
 
 int newAsciiValue(char character) {
     int offset = 3;
-    return (character + offset % LAST_ASCII_VALUE);
+    return (((int(character) + offset - FIRST_ASCII_VALUE) % NUMBER_OF_CHARACTERS) + FIRST_ASCII_VALUE);
 }
 
-string encryptText(string text, string key) {
+string encrypt(string text, string key) {
     string cypherText = text;
+    string tempCypherText;
     int blockSize = 16;
-    for(int i = 0; i < 5; i++) {
-        int blockCounter = 1;
+    for(int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
+        int blockNum = 1;
         int index = 0;
-        while(index < cypherText.length()) {
-            index = blockCounter * blockSize;
-            char** textBlock = stringToBlock(cypherText.substr(index-blockSize, blockSize));
+        tempCypherText = cypherText;
+        cypherText = "";
+        while(index < text.length()) {
+            index = blockNum * blockSize;
+            char** textBlock = stringToBlock(tempCypherText.substr(index-blockSize, blockSize));
             char** keyBlock = stringToBlock(key.substr(index-blockSize, blockSize));
-            cypherText = hideValues(textBlock, keyBlock, sqrt(blockSize));
-            blockCounter++;
+            cypherText += hideValues(textBlock, keyBlock, sqrt(blockSize));
+            blockNum++;
         }
     }
     return cypherText;
 }
 
-string decryptText(string cypherText, string key) {
+string decrypt(string cypherText, string key) {
     string text = cypherText;
+    string tempText;
     int blockSize = 16;
-    
-    for(int i = 0; i < 5; i++) {
-        int blockCounter = 1;
+    for(int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
+        int blockNum = 1;
         int index = 0;
+        tempText = text;
+        text = "";
         while(index < cypherText.length()) {
-            index = blockCounter * blockSize;
-            char** textBlock = stringToBlock(text.substr(index-blockSize, blockSize));
+            index = blockNum * blockSize;
+            char** textBlock = stringToBlock(tempText.substr(index-blockSize, blockSize));
             char** keyBlock = stringToBlock(key.substr(index-blockSize, blockSize));
-            text = revealValues(textBlock, keyBlock, sqrt(blockSize));
-            blockCounter++;
+            text += revealValues(textBlock, keyBlock, sqrt(blockSize));
+            blockNum++;
         }
     }
     return text;
