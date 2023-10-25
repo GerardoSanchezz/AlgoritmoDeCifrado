@@ -24,8 +24,8 @@ char originalAsciiCharacter(int);
 char getTextCharacter(char, char);
 char*** textMatrix(string&, int&);
 void textFormat();
-char move(char&, char&);
-char** shiftMatrixCharacters(char matrix[4][4]);
+void shiftMatrixCharactersRight(char**);
+void shiftMatrixCharactersLeft(char**);
 void deleteMatrix(char**);
 
 int FIRST_ASCII_VALUE = 32;
@@ -47,7 +47,8 @@ int main(){
 
     string original = decrypt(chyper, key);
     cout << original << endl;
-    
+
+
     exportTable(vigenere, NUMBER_OF_CHARACTERS);
     deleteTable(vigenere, NUMBER_OF_CHARACTERS);
 
@@ -103,6 +104,16 @@ string encrypt(string text, string key) {
             blockNum++;
         }
     }
+    char** block = stringToBlock(cypherText);
+    shiftMatrixCharactersRight(block);
+    for(int i=0; i<sqrt(cypherText.length()); i++){
+        for(int j=0; j<sqrt(cypherText.length()); j++){
+            cout << block[i][j] << " ";
+        }
+    }
+    deleteTable(block, sqrt(cypherText.length()));
+
+    
     return cypherText;
 }
 
@@ -280,24 +291,18 @@ char move(char& a, char& b) {
     return temp;
 }
 
-char** shiftMatrixCharacters(char matrix[4][4]) {
-    char** newMatrix = new char*[4];
-    for (int i = 0; i < 4; i++) {
-        newMatrix[i] = new char[4];
-    }
-
+void shiftMatrixCharactersRight(char** matrix) {
     char prev = matrix[0][0];
     char last = matrix[3][3];
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
             char temp = matrix[i][j];
-            newMatrix[i][j] = move(prev, temp);
+            matrix[i][j] = move(prev, temp);
             prev = temp;
         }
     }
-    newMatrix[0][0] = last;
-
-    return newMatrix;
+    matrix[0][0] = last;
+;
 }
 
 void deleteMatrix(char** matrix) {
@@ -305,4 +310,17 @@ void deleteMatrix(char** matrix) {
         delete[] matrix[i];
     }
     delete[] matrix;
+}
+
+void shiftMatrixCharactersLeft(char** matrix) {
+
+    char prev = matrix[0][0];
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            char temp = matrix[i][j];
+            matrix[i][j] = temp;
+        }
+    }
+
+    matrix[0][0] = prev;
 }
