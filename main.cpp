@@ -4,78 +4,52 @@
 #include <map>
 #include <vector>
 #include <sstream>
+#include <math.h>
 
 using namespace std;
-
-int FIRST_ASCII_VALUE = 32;
-int LAST_ASCII_VALUE = 128;  // Se ha cambiado a 128
-int NUMBER_OF_CHARACTERS = LAST_ASCII_VALUE - FIRST_ASCII_VALUE + 1;
 
 
 char** vigenereTable();
 void deleteTable(char**, int);
 void exportTable(char**, int);
 map<char, int> mixedAscii();
-int generateNewAsciiValue(char);
+int newAsciiValue(char);
 int Fibonacci(int);
+char** stringToBlock(string);
+string encrypt(string, string);
+string decrypt(string, string);
+string hideValues(char**, char**, int);
+string revealValues(char**, char**, int);
+char originalAsciiCharacter(int);
+char getTextCharacter(char, char);
 char*** textMatrix(string&, int&);
 void textFormat();
 char move(char&, char&);
 char** shiftMatrixCharacters(char matrix[4][4]);
 void deleteMatrix(char**);
 
+int FIRST_ASCII_VALUE = 32;
+int LAST_ASCII_VALUE = 126;
+int NUMBER_OF_CHARACTERS = LAST_ASCII_VALUE - FIRST_ASCII_VALUE + 1;
+int NUMBER_OF_ITERATIONS = 1;
+char** vigenere = vigenereTable();
+map<char, int> newAscii = mixedAscii();
+
 
 int main(){
-    textFormat();
-    char** viegnere = vigenereTable();
-    map<char, int> newAscii = mixedAscii();
 
-    // string text = "EJEMPLOOOO JIJI JAJA XD";
+    string text;
+    string key = "contrasenaseguracontrasenasegura";
+    getline(cin, text);
 
-    // int numRows;
-    // char*** result = textMatrix(text, numRows);
+    string chyper = encrypt(text, key);
+    cout << chyper << endl;
 
-    // // Imprimir todas las matrices resultantes
-    // for (int i = 0; i < numRows; i++) { // Imprimir todas las matrices resultantes
-    //     for (int j = 0; j < 4; j++) { // Imprimir cada fila de la matriz 
-    //         for (int k = 0; k < 4; k++) { // Imprimir cada columna de la matriz
-    //             cout << result[i][j][k] << " "; 
-    //         }
-    //         cout << endl;
-    //     }
-    //     cout << endl;
-    // }
-
-    char myMatrix[4][4] = {
-        {'E', 'J', 'E', 'M'},
-        {'P', 'L', 'O', 'O'},
-        {'O', 'O', 'C', 'J'},
-        {'I', 'B', 'A', 'X'}
-        
-    };
-
-    cout << "Original Matrix:" << endl;
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            cout << myMatrix[i][j] << " ";
-        }
-        cout << endl;
-    }
-
-    char** shiftedMatrix = shiftMatrixCharacters(myMatrix);
-
-    cout << "Shifted Matrixx:" << endl;
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            cout << shiftedMatrix[i][j] << " ";
-        }
-        cout << endl;
-    }
-
-    deleteMatrix(shiftedMatrix);
-
-    exportTable(viegnere, 94);
-    deleteTable(viegnere, 94);
+    string original = decrypt(chyper, key);
+    cout << original << endl;
+    
+    exportTable(vigenere, NUMBER_OF_CHARACTERS);
+    deleteTable(vigenere, NUMBER_OF_CHARACTERS);
 
     return 0;
 }
@@ -92,7 +66,7 @@ char** vigenereTable() {
     for (int i = 0; i < NUMBER_OF_CHARACTERS; i++) {
         table[i] = new char[NUMBER_OF_CHARACTERS];
         for (int j = 0; j < NUMBER_OF_CHARACTERS; j++) {
-            table[i][j] = char(i + j + FIRST_ASCII_VALUE);
+            table[i][j] = char(((i + j) % NUMBER_OF_CHARACTERS) + FIRST_ASCII_VALUE);
         }
     }
 
@@ -101,15 +75,112 @@ char** vigenereTable() {
 
 map<char, int> mixedAscii() {
     map<char, int> newAscii;
-    for (int i = 32; i < 126; i++) {
-        newAscii[char(i)] = generateNewAsciiValue(char(i));
+    for (int i = FIRST_ASCII_VALUE; i <= LAST_ASCII_VALUE; i++) {
+        newAscii[char(i)] = newAsciiValue(char(i));
     }
     return newAscii;
 }
 
-int generateNewAsciiValue(char character) {
+int newAsciiValue(char character) {
     int offset = 3;
-    return (character + offset % 126);
+    return (((int(character) + offset - FIRST_ASCII_VALUE) % NUMBER_OF_CHARACTERS) + FIRST_ASCII_VALUE);
+}
+
+string encrypt(string text, string key) {
+    string cypherText = text;
+    string tempCypherText;
+    int blockSize = 16;
+    for(int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
+        int blockNum = 1;
+        int index = 0;
+        tempCypherText = cypherText;
+        cypherText = "";
+        while(index < text.length()) {
+            index = blockNum * blockSize;
+            char** textBlock = stringToBlock(tempCypherText.substr(index-blockSize, blockSize));
+            char** keyBlock = stringToBlock(key.substr(index-blockSize, blockSize));
+            cypherText += hideValues(textBlock, keyBlock, sqrt(blockSize));
+            blockNum++;
+        }
+    }
+    return cypherText;
+}
+
+string decrypt(string cypherText, string key) {
+    string text = cypherText;
+    string tempText;
+    int blockSize = 16;
+    for(int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
+        int blockNum = 1;
+        int index = 0;
+        tempText = text;
+        text = "";
+        while(index < cypherText.length()) {
+            index = blockNum * blockSize;
+            char** textBlock = stringToBlock(tempText.substr(index-blockSize, blockSize));
+            char** keyBlock = stringToBlock(key.substr(index-blockSize, blockSize));
+            text += revealValues(textBlock, keyBlock, sqrt(blockSize));
+            blockNum++;
+        }
+    }
+    return text;
+}
+
+char** stringToBlock(string text) {
+    int textIndex = 0;
+    char** matrix = new char*[4];
+    for (int i = 0; i < 4; i++) {
+        matrix[i] = new char[4];
+        for (int j = 0; j < 4; j++) {
+            matrix[i][j] = text[textIndex];
+            textIndex++;
+        }
+    }
+    return matrix;
+}
+
+string hideValues(char** textBlock, char** keyBlock, int n) {
+    string newText;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            int textCharacter = int(textBlock[i][j]) - FIRST_ASCII_VALUE; 
+            int keyCharacter = int(keyBlock[i][j]) - FIRST_ASCII_VALUE; 
+            char vigenereCharacter = vigenere[textCharacter][keyCharacter];
+            newText += char(newAscii[vigenereCharacter]);
+        }
+    }
+    return newText;
+}
+
+string revealValues(char** textBlock, char** keyBlock, int n) {
+    string newText;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            int hiddenValue = int(textBlock[i][j]);
+            char hiddenCharacter = originalAsciiCharacter(hiddenValue);
+            newText += getTextCharacter(hiddenCharacter, keyBlock[i][j]);
+        }
+    }
+    return newText;
+}
+
+char originalAsciiCharacter(int value) {
+    for (const auto pair : newAscii) {
+        if (pair.second == value) {
+            return pair.first;
+        }
+    }
+    return ' ';
+}
+
+char getTextCharacter(char cypherCharacter, char keyCharacter) {
+    int keyValue = int(keyCharacter) - FIRST_ASCII_VALUE;
+    for (int i = 0; i < NUMBER_OF_CHARACTERS; i++) {
+        if (vigenere[i][keyValue] == cypherCharacter) {
+            return vigenere[i][0];
+        }
+    }
+    return ' ';
 }
 
 void exportTable(char** tabla, int size) {
@@ -123,7 +194,6 @@ void exportTable(char** tabla, int size) {
             archivo << "\n";
         }
         archivo.close();
-        cout << "Tabla de Vigenère generada y exportada exitosamente a tabla_vigenere.txt" << endl;
     } else {
         cerr << "No se pudo abrir el archivo para escritura." << endl;
     }
