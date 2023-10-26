@@ -23,10 +23,11 @@ string revealValues(char**, char**, int);
 char originalAsciiCharacter(int);
 char getTextCharacter(char, char);
 char*** textMatrix(string&, int&);
-void textFormat();
+void textFormat(string);
 void shiftMatrixCharactersRight(char**);
 void shiftMatrixCharactersLeft(char**);
 void deleteMatrix(char**);
+char move(char&, char&);
 
 int FIRST_ASCII_VALUE = 32;
 int LAST_ASCII_VALUE = 126;
@@ -41,6 +42,8 @@ int main(){
     string text;
     string key = "contrasenaseguracontrasenasegura";
     getline(cin, text);
+
+    textFormat(text);
 
     string chyper = encrypt(text, key);
     cout << chyper << endl;
@@ -91,6 +94,7 @@ string encrypt(string text, string key) {
     string cypherText = text;
     string tempCypherText;
     int blockSize = 16;
+    char** textBlock;
     for(int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
         int blockNum = 1;
         int index = 0;
@@ -98,22 +102,18 @@ string encrypt(string text, string key) {
         cypherText = "";
         while(index < text.length()) {
             index = blockNum * blockSize;
-            char** textBlock = stringToBlock(tempCypherText.substr(index-blockSize, blockSize));
+            textBlock = stringToBlock(tempCypherText.substr(index-blockSize, blockSize));
             char** keyBlock = stringToBlock(key.substr(index-blockSize, blockSize));
             cypherText += hideValues(textBlock, keyBlock, sqrt(blockSize));
             blockNum++;
         }
     }
-    char** block = stringToBlock(cypherText);
-    shiftMatrixCharactersRight(block);
-    for(int i=0; i<sqrt(cypherText.length()); i++){
-        for(int j=0; j<sqrt(cypherText.length()); j++){
-            cout << block[i][j] << " ";
-        }
-    }
-    deleteTable(block, sqrt(cypherText.length()));
-
-    
+    // shiftMatrixCharactersLeft(textBlock);
+    // for(int i=0; i<4; i++){
+    //     for(int j=0; j<4; j++){
+    //         cout << textBlock[i][j] << " ";
+    //     }
+    // }
     return cypherText;
 }
 
@@ -251,38 +251,11 @@ char*** textMatrix(string& text, int& numRows) {
     return matrices;
 }
 
-void textFormat() {
-    // Abrir el archivo de texto
-    ifstream file("texto.txt");
-    
-    if (!file.is_open()) {
-        cerr << "Cannot open file" << endl;
-        return;
+void textFormat(string text) {
+    // Si el text no es múltiplo de 16, se rellena con espacios
+    while (text.length() % 16 != 0) {
+        text += ' ';
     }
-
-    // Leer el archivo en un solo string
-    stringstream buffer;
-    buffer << file.rdbuf();
-    string text = buffer.str();
-
-    // Calcular el número de caracteres en el texto
-    int n = text.length();
-
-    // Completar con espacios si no es múltiplo de 16
-    int nSpaces = 16 - (n % 16);
-    for (int i = 0; i < nSpaces; i++) {
-        text += " ";
-    }
-
-    // Sobrescribir el archivo con el texto modificado
-    ofstream newFile("texto.txt");
-    newFile << text;
-
-    // Cerrar los archivos
-    file.close();
-    newFile.close();
-
-    cout << n << endl;
 }
 
 char move(char& a, char& b) {
@@ -302,7 +275,6 @@ void shiftMatrixCharactersRight(char** matrix) {
         }
     }
     matrix[0][0] = last;
-;
 }
 
 void deleteMatrix(char** matrix) {
@@ -313,14 +285,14 @@ void deleteMatrix(char** matrix) {
 }
 
 void shiftMatrixCharactersLeft(char** matrix) {
-
     char prev = matrix[0][0];
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
+    char final = matrix[0][0];
+    for (int i = 3; i >= 0; i--) {
+        for (int j = 3; j >= 0; j--) {
             char temp = matrix[i][j];
-            matrix[i][j] = temp;
+            matrix[i][j] = move(prev, temp);
+            prev = temp;
         }
     }
-
-    matrix[0][0] = prev;
+    matrix[3][3] = final;
 }
