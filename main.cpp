@@ -5,8 +5,6 @@
 #include <vector>
 #include <sstream>
 #include <math.h>
-#define R 4 
-#define C 4 
 
 using namespace std;
 
@@ -25,11 +23,14 @@ string revealValues(char**, char**, int);
 char originalAsciiCharacter(int);
 char getTextCharacter(char, char);
 char*** textMatrix(string&, int&);
-void textFormat(string);
+string textFormat(string);
 void shiftMatrixCharactersRight(char**);
 void shiftMatrixCharactersLeft(char**);
 void deleteMatrix(char**);
 char move(char&, char&);
+void rotateMatrix(char**, int);
+void printMatrix(int);
+
 
 int FIRST_ASCII_VALUE = 32;
 int LAST_ASCII_VALUE = 126;
@@ -44,11 +45,24 @@ int main(){
     string text;
     string key = "contrasenaseguracontrasenasegura";
     getline(cin, text);
+    
 
-    textFormat(text);
+    string newText = textFormat(text);
 
-    string chyper = encrypt(text, key);
+    string chyper = encrypt(newText, key);
     cout << chyper << endl;
+
+    int chyperAscii = 0;
+    for (int i = 0; i < chyper.length(); i++) {
+        chyperAscii += int(chyper[i]);
+    }
+    cout << "chypher ascii = " << chyperAscii << endl;
+    int keyAscii = 0;
+    for (int i = 0; i < key.length(); i++) {
+        keyAscii += int(key[i]);
+    }
+    cout << "key ascii = " << keyAscii << endl;
+    cout << "cypher ^ key = " << (chyperAscii ^ keyAscii) << endl;
 
     string original = decrypt(chyper, key);
     cout << original << endl;
@@ -110,12 +124,27 @@ string encrypt(string text, string key) {
             blockNum++;
         }
     }
+
+    rotateMatrix(textBlock, 3);
+    for(int i=0; i<4; i++){
+       for(int j=0; j<4; j++){
+            cout << textBlock[i][j] << " ";
+         }
+     }
+     cout << endl;
+     rotateMatrix(textBlock, -3);
+    for(int i=0; i<4; i++){
+       for(int j=0; j<4; j++){
+            cout << textBlock[i][j] << " ";
+         }
+     }
     // shiftMatrixCharactersLeft(textBlock);
     // for(int i=0; i<4; i++){
     //     for(int j=0; j<4; j++){
     //         cout << textBlock[i][j] << " ";
     //     }
     // }
+    
     return cypherText;
 }
 
@@ -253,11 +282,12 @@ char*** textMatrix(string& text, int& numRows) {
     return matrices;
 }
 
-void textFormat(string text) {
+string textFormat(string text) {
     // Si el text no es múltiplo de 16, se rellena con espacios
     while (text.length() % 16 != 0) {
         text += ' ';
     }
+    return text;
 }
 
 char move(char& a, char& b) {
@@ -300,25 +330,21 @@ void shiftMatrixCharactersLeft(char** matrix) {
 }
 
 // Rotate Matrix function
-void rotateMatrix(int matrix[4][4], int times) {
-
+void rotateMatrix(char** matrix, int times) {
     // If times is negative, rotate counter-clockwise
     if (times < 0) {
         times = 4 + (times % 4);
-        cout << times << endl;
     }
-
     // If times is greater than 4, rotate the matrix by the remainder
     times = times % 4;
-
     for (int t = 0; t < times; t++) {
-        for (int i = 0; i < 4 / 2; i++) {
+        for (int i = 0; i < 2; i++) {
             for (int j = i; j < 4 - i - 1; j++) {
                 int temp = matrix[i][j];
-                matrix[i][j] = matrix[4 - 1 - j][i];
-                matrix[4 - 1 - j][i] = matrix[4 - 1 - i][4 - 1 - j];
-                matrix[4 - 1 - i][4 - 1 - j] = matrix[j][4 - 1 - i];
-                matrix[j][4 - 1 - i] = temp;
+                matrix[i][j] = matrix[3 - j][i];
+                matrix[3 - j][i] = matrix[3 - i][3 - j];
+                matrix[3 - i][3 - j] = matrix[j][3 - i];
+                matrix[j][3 - i] = temp;
             }
         }
     }
