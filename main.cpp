@@ -5,6 +5,8 @@
 #include <vector>
 #include <sstream>
 #include <math.h>
+#define R 4 
+#define C 4 
 
 using namespace std;
 
@@ -295,4 +297,38 @@ void shiftMatrixCharactersLeft(char** matrix) {
         }
     }
     matrix[3][3] = final;
+}
+
+// Rotate Matrix function
+void rotateMatrix(int matrix[4][4], int times) {
+
+    // If times is negative, rotate counter-clockwise
+    if (times < 0) {
+        times = 4 + (times % 4);
+        cout << times << endl;
+    }
+
+    // If times is greater than 4, rotate the matrix by the remainder
+    times = times % 4;
+
+    for (int t = 0; t < times; t++) {
+        for (int i = 0; i < 4 / 2; i++) {
+            for (int j = i; j < 4 - i - 1; j++) {
+                int temp = matrix[i][j];
+                matrix[i][j] = matrix[4 - 1 - j][i];
+                matrix[4 - 1 - j][i] = matrix[4 - 1 - i][4 - 1 - j];
+                matrix[4 - 1 - i][4 - 1 - j] = matrix[j][4 - 1 - i];
+                matrix[j][4 - 1 - i] = temp;
+            }
+        }
+    }
+}
+
+void printMatrix(int matrix[4][4]) {
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            cout << matrix[i][j] << " ";
+        }
+        cout << endl;
+    }
 }
