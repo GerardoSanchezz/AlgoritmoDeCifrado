@@ -16,8 +16,8 @@ map<char, int> mixedAscii();
 int newAsciiValue(char);
 int Fibonacci(int);
 char** stringToBlock(string);
-string encrypt(string, string);
-string decrypt(string, string);
+string encrypt(string, string&);
+string decrypt(string, string&);
 string hideValues(char**, char**, int);
 string revealValues(char**, char**, int);
 char originalAsciiCharacter(int);
@@ -29,9 +29,10 @@ void shiftMatrixCharactersLeft(char**);
 void deleteMatrix(char**);
 char move(char&, char&);
 void rotateMatrix(char**, int);
-void printMatrix(int);
+void printMatrix(char**);
 char** xorMatrices(char**, char**);
 string encryptKey(string);
+string blockToString(char**);
 
 
 int FIRST_ASCII_VALUE = 32;
@@ -95,44 +96,56 @@ int newAsciiValue(char character) {
     return (((int(character) + offset - FIRST_ASCII_VALUE) % NUMBER_OF_CHARACTERS) + FIRST_ASCII_VALUE);
 }
 
-string encrypt(string text, string key) {
+string encrypt(string text, string &key) {
     string cypherText = text;
     string tempCypherText;
     int blockSize = 16;
     char** textBlock;
+    char** keyBlock;
+    int blockNum = 1;
     for(int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
-        int blockNum = 1;
         int index = 0;
         tempCypherText = cypherText;
         cypherText = "";
         while(index < text.length()) {
             index = blockNum * blockSize;
             textBlock = stringToBlock(tempCypherText.substr(index-blockSize, blockSize));
-            char** keyBlock = stringToBlock(key.substr(index-blockSize, blockSize));
+            keyBlock = stringToBlock(key.substr(index-blockSize, blockSize));
+            int moveTimes = Fibonacci(blockNum);
+            rotateMatrix(keyBlock, moveTimes);
+            shiftMatrixCharactersRight(keyBlock);
 
+            key = blockToString(keyBlock);
+            // textBlock = xorMatrices(textBlock, keyBlock);
             cypherText += hideValues(textBlock, keyBlock, sqrt(blockSize));
             blockNum++;
         }
     }
-    
     return cypherText;
 }
 
-string decrypt(string cypherText, string key) {
+string decrypt(string cypherText, string &key) {
     string text = cypherText;
     string tempText;
     int blockSize = 16;
+    char** textBlock;
+    char** keyBlock;
+    int blockNum = 1;
     for(int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
-        int blockNum = 1;
         int index = 0;
         tempText = text;
         text = "";
         while(index < cypherText.length()) {
             index = blockNum * blockSize;
-            char** textBlock = stringToBlock(tempText.substr(index-blockSize, blockSize));
-            char** keyBlock = stringToBlock(key.substr(index-blockSize, blockSize));
+            textBlock = stringToBlock(tempText.substr(index-blockSize, blockSize));
+            keyBlock = stringToBlock(key.substr(index-blockSize, blockSize));
+            int moveTimes = Fibonacci(blockNum);
             text += revealValues(textBlock, keyBlock, sqrt(blockSize));
-            blockNum++;
+            rotateMatrix(keyBlock, (moveTimes * -1));
+            shiftMatrixCharactersLeft(keyBlock);
+            // textBlock = xorMatrices(textBlock, keyBlock);
+            key = blockToString(keyBlock);
+            blockNum++;         
         }
     }
     return text;
@@ -151,8 +164,21 @@ char** stringToBlock(string text) {
     return matrix;
 }
 
+string blockToString(char** block) {
+    string text = "";
+    for (int i = 0; i < 4; i++) { 
+        for (int j = 0; j < 4; j++) {
+            text += block[i][j];
+        }
+    }
+    return text;
+}
+
 string hideValues(char** textBlock, char** keyBlock, int n) {
     string newText;
+    // printMatrix(textBlock);
+    // cout << "Key block" << endl;
+    // printMatrix(keyBlock);
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             int textCharacter = int(textBlock[i][j]) - FIRST_ASCII_VALUE; 
@@ -320,7 +346,7 @@ void rotateMatrix(char** matrix, int times) {
     }
 }
 
-void printMatrix(int matrix[4][4]) {
+void printMatrix(char** matrix) {
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
             cout << matrix[i][j] << " ";
@@ -332,7 +358,8 @@ void printMatrix(int matrix[4][4]) {
 char** xorMatrices(char** text, char** key) {
     for (int i = 0; i < 4; i++) { 
         for (int j = 0; j < 4; j++) {
-            text[i][j] = char(text[i][j] ^ key[i][j]);
+            text[i][j] = char((int(text[i][j]) ^ int(key[i][j])% NUMBER_OF_CHARACTERS));
+            // cout << text[i][j] << " ";
         }
     }
     return text;
