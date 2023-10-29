@@ -332,7 +332,7 @@ void printMatrix(int matrix[4][4]) {
 char** xorMatrices(char** text, char** key) {
     for (int i = 0; i < 4; i++) { 
         for (int j = 0; j < 4; j++) {
-            text[i][j] = text[i][j] ^ key[i][j];
+            text[i][j] = char(text[i][j] ^ key[i][j]);
         }
     }
     return text;
