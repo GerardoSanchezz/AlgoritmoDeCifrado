@@ -31,7 +31,6 @@ char move(char&, char&);
 void rotateMatrix(char**, int);
 void printMatrix(char**);
 char** xorMatrices(char**, char**);
-string encryptKey(string);
 string blockToString(char**);
 
 
@@ -42,6 +41,7 @@ int NUMBER_OF_ITERATIONS = 1;
 char** vigenere = vigenereTable();
 map<char, int> newAscii = mixedAscii();
 
+// El texto ingresado debe ser menor a 32 caracteres para que funcione de manera adecuada
 
 int main(){
 
@@ -103,6 +103,7 @@ string encrypt(string text, string &key) {
     char** textBlock;
     char** keyBlock;
     int blockNum = 1;
+    // char** cypherBlock;
     for(int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
         int index = 0;
         tempCypherText = cypherText;
@@ -111,12 +112,10 @@ string encrypt(string text, string &key) {
             index = blockNum * blockSize;
             textBlock = stringToBlock(tempCypherText.substr(index-blockSize, blockSize));
             keyBlock = stringToBlock(key.substr(index-blockSize, blockSize));
-            int moveTimes = Fibonacci(blockNum);
+            int moveTimes = Fibonacci(blockNum + 8);
             rotateMatrix(keyBlock, moveTimes);
             shiftMatrixCharactersRight(keyBlock);
-
             key = blockToString(keyBlock);
-            // textBlock = xorMatrices(textBlock, keyBlock);
             cypherText += hideValues(textBlock, keyBlock, sqrt(blockSize));
             blockNum++;
         }
@@ -131,19 +130,21 @@ string decrypt(string cypherText, string &key) {
     char** textBlock;
     char** keyBlock;
     int blockNum = 1;
+    int index = 0;
+    // char** cypherBlock;
     for(int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
-        int index = 0;
         tempText = text;
         text = "";
         while(index < cypherText.length()) {
+            // cypherBlock = stringToBlock(text);
+            // text = blockToString(cypherBlock);
             index = blockNum * blockSize;
             textBlock = stringToBlock(tempText.substr(index-blockSize, blockSize));
             keyBlock = stringToBlock(key.substr(index-blockSize, blockSize));
-            int moveTimes = Fibonacci(blockNum);
+            int moveTimes = Fibonacci(blockNum + 8);
             text += revealValues(textBlock, keyBlock, sqrt(blockSize));
             rotateMatrix(keyBlock, (moveTimes * -1));
             shiftMatrixCharactersLeft(keyBlock);
-            // textBlock = xorMatrices(textBlock, keyBlock);
             key = blockToString(keyBlock);
             blockNum++;         
         }
@@ -176,22 +177,26 @@ string blockToString(char** block) {
 
 string hideValues(char** textBlock, char** keyBlock, int n) {
     string newText;
-    // printMatrix(textBlock);
-    // cout << "Key block" << endl;
-    // printMatrix(keyBlock);
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             int textCharacter = int(textBlock[i][j]) - FIRST_ASCII_VALUE; 
             int keyCharacter = int(keyBlock[i][j]) - FIRST_ASCII_VALUE; 
             char vigenereCharacter = vigenere[textCharacter][keyCharacter];
             newText += char(newAscii[vigenereCharacter]);
+
         }
     }
+    // char** finalTextBlock = stringToBlock(newText);
+    // finalTextBlock = xorMatrices(finalTextBlock, keyBlock);
+    // newText = blockToString(finalTextBlock);
     return newText;
 }
 
 string revealValues(char** textBlock, char** keyBlock, int n) {
     string newText;
+    // char** finalTextBlock = stringToBlock(newText);
+    // finalTextBlock = xorMatrices(finalTextBlock, keyBlock);
+    // newText = blockToString(finalTextBlock);
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             int hiddenValue = int(textBlock[i][j]);
@@ -358,17 +363,10 @@ void printMatrix(char** matrix) {
 char** xorMatrices(char** text, char** key) {
     for (int i = 0; i < 4; i++) { 
         for (int j = 0; j < 4; j++) {
-            text[i][j] = char((int(text[i][j]) ^ int(key[i][j])% NUMBER_OF_CHARACTERS));
+            text[i][j] = char(int(text[i][j]) ^ int(key[i][j]));
+            // cout << text[i][j] << endl;
             // cout << text[i][j] << " ";
         }
     }
     return text;
-}
-
-string encryptKey(string key) {
-    string encryptedKey = "";
-
-
-
-    return encryptedKey;
 }
