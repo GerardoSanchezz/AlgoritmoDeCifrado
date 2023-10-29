@@ -30,6 +30,8 @@ void deleteMatrix(char**);
 char move(char&, char&);
 void rotateMatrix(char**, int);
 void printMatrix(int);
+char** xorMatrices(char**, char**);
+string encryptKey(string);
 
 
 int FIRST_ASCII_VALUE = 32;
@@ -45,24 +47,11 @@ int main(){
     string text;
     string key = "contrasenaseguracontrasenasegura";
     getline(cin, text);
-    
 
     string newText = textFormat(text);
 
     string chyper = encrypt(newText, key);
     cout << chyper << endl;
-
-    int chyperAscii = 0;
-    for (int i = 0; i < chyper.length(); i++) {
-        chyperAscii += int(chyper[i]);
-    }
-    cout << "chypher ascii = " << chyperAscii << endl;
-    int keyAscii = 0;
-    for (int i = 0; i < key.length(); i++) {
-        keyAscii += int(key[i]);
-    }
-    cout << "key ascii = " << keyAscii << endl;
-    cout << "cypher ^ key = " << (chyperAscii ^ keyAscii) << endl;
 
     string original = decrypt(chyper, key);
     cout << original << endl;
@@ -120,30 +109,11 @@ string encrypt(string text, string key) {
             index = blockNum * blockSize;
             textBlock = stringToBlock(tempCypherText.substr(index-blockSize, blockSize));
             char** keyBlock = stringToBlock(key.substr(index-blockSize, blockSize));
+
             cypherText += hideValues(textBlock, keyBlock, sqrt(blockSize));
             blockNum++;
         }
     }
-
-    rotateMatrix(textBlock, 3);
-    for(int i=0; i<4; i++){
-       for(int j=0; j<4; j++){
-            cout << textBlock[i][j] << " ";
-         }
-     }
-     cout << endl;
-     rotateMatrix(textBlock, -3);
-    for(int i=0; i<4; i++){
-       for(int j=0; j<4; j++){
-            cout << textBlock[i][j] << " ";
-         }
-     }
-    // shiftMatrixCharactersLeft(textBlock);
-    // for(int i=0; i<4; i++){
-    //     for(int j=0; j<4; j++){
-    //         cout << textBlock[i][j] << " ";
-    //     }
-    // }
     
     return cypherText;
 }
@@ -357,4 +327,21 @@ void printMatrix(int matrix[4][4]) {
         }
         cout << endl;
     }
+}
+
+char** xorMatrices(char** text, char** key) {
+    for (int i = 0; i < 4; i++) { 
+        for (int j = 0; j < 4; j++) {
+            text[i][j] = text[i][j] ^ key[i][j];
+        }
+    }
+    return text;
+}
+
+string encryptKey(string key) {
+    string encryptedKey = "";
+
+
+
+    return encryptedKey;
 }
