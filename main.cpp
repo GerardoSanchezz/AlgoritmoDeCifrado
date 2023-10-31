@@ -5,6 +5,7 @@
 #include <vector>
 #include <sstream>
 #include <math.h>
+#include <random>
 
 using namespace std;
 
@@ -47,7 +48,8 @@ map<char, int> newAscii = mixedAscii();
 int main(){
 
     string text;
-    string key = "contra";
+    string key = "contrasegura";
+    cout << "Ingrese el texto a cifrar: ";
     getline(cin, text);
 
     
@@ -56,10 +58,10 @@ int main(){
     string newText = textFormat(text);
 
     string chyper = encrypt(newText, key);
-    cout << chyper << endl;
+    cout << "Texto cifrado: " << chyper << endl;
 
     string original = decrypt(chyper, key);
-    cout << original << endl;
+    cout << "Texto original: " << original << endl;
 
 
     exportTable(vigenere, NUMBER_OF_CHARACTERS);
