@@ -39,7 +39,7 @@ string compareTextAndKey(string, string);
 int FIRST_ASCII_VALUE = 32;
 int LAST_ASCII_VALUE = 126;
 int NUMBER_OF_CHARACTERS = LAST_ASCII_VALUE - FIRST_ASCII_VALUE + 1;
-int NUMBER_OF_ITERATIONS = 1;
+int NUMBER_OF_ITERATIONS = 2;
 char** vigenere = vigenereTable();
 map<char, int> newAscii = mixedAscii();
 
@@ -48,7 +48,7 @@ map<char, int> newAscii = mixedAscii();
 int main(){
 
     string text;
-    string key = "contrasegura";
+    string key;
     cout << "Ingrese el texto a cifrar: ";
     getline(cin, text);
 
