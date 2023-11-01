@@ -51,8 +51,9 @@ int main(){
     string key;
     cout << "Ingrese el texto a cifrar: ";
     getline(cin, text);
+    cout << "Ingrese la llave: ";
+    getline(cin, key);
 
-    
     key = compareTextAndKey(text, key);
 
     string newText = textFormat(text);
